@@ -9,7 +9,7 @@ export default function App() {
         </div>
         <div className="card-body">
           <p className="mb-0">
-            Yarışmaya başlamak için Basşla butonuna tıklayınız
+            Yarışmaya başlamak için Başla butonuna tıklayınız
           </p>
         </div>
         <div className="card-footer">
@@ -20,7 +20,13 @@ export default function App() {
         <div className="card-header">
           <h4 className="mb-0">Tükiyenin basşkenti neresi?</h4>
         </div>
-        <div className="card-body">harfler</div>
+        <div className="card-body">
+
+<div className="harf">
+
+</div>
+
+        </div>
         <div className="card-footer">
           <div class="input-group">
             <input
@@ -31,11 +37,11 @@ export default function App() {
               aria-describedby="basic-addon2"
             />
             <div class="input-group-append">
-              <button class="btn btn-outline-secondary" type="button">
-                Button
+              <button class="btn btn-outline-success" type="button">
+                Cevapla
               </button>
-              <button class="btn btn-outline-secondary" type="button">
-                Button
+              <button class="btn btn-outline-dark" type="button">
+                Harf Ver
               </button>
             </div>
           </div>
