@@ -1,0 +1,11 @@
+.harf
+{
+    width: 80px;
+    height: 90px;
+    font-size: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 1px;
+    
+}
