@@ -96,8 +96,14 @@ export default function App() {
         if(index === randomLetterIndex){
           harf.acik=true;
         }
-      })
+        return harf;
+      }),
+      harfPuan:game.harfPuan-100
     })
+  };
+
+  const answerChanged= (e) => {
+    setgame({...game,yarismaciCevap: e.target.value})
   };
 
   //console.log(game.sorular);
@@ -138,7 +144,7 @@ export default function App() {
           <div className="card-body">
             <div className="harfler d-flex">
               {game.harfler.map((harf, index) => (
-                <div className="harf shadow-sm mr-4 bg-dark text-white" key={"key-" + index}>
+                <div className="harf shadow-sm mr-4 bg-dark text-white">
                   {harf.acik && <span>{harf.deger}</span>}
                   <span></span>
                 </div>)
@@ -148,9 +154,9 @@ export default function App() {
 
           </div>
           <div className="card-footer">
-            <div>Toplam Puan: {game.puan}</div>
-            <div>Harf Puan: {game.harfPuan}</div>
-            <div></div>
+            <div className="mr-4">Toplam Puan: {game.puan}</div>
+            <div className="mr-4">Harf Puan: {game.harfPuan}</div>
+            <div className="mr-4">Kalan süre: {game.kalanSure} saniye.</div>
           </div>
           <div className="card-footer">
             <div className="input-group">
@@ -160,6 +166,8 @@ export default function App() {
                 placeholder="Cevabınız?"
                 aria-label="Recipient's username"
                 aria-describedby="basic-addon2"
+                value={game.yarismaciCevap}
+                onChange={answerChanged}
               />
               <div className="input-group-append">
                 <button className="btn btn-outline-success" type="button" onClick={answer}>
