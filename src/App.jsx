@@ -62,9 +62,11 @@ export default function App() {
         deger: h,
         acik: false
       });
-    });
+      console.log("h şudur=="+h);
+    }
+    );
     mevcutSoru.soruldu = true;
-    setgame({ ...game, mevcutSoru, harfler, sorular })
+    setgame({ ...game, mevcutSoru, harfler, sorular, harfPuan: harfler.length * 100 })
   }
 
   const answer = () => {
@@ -77,8 +79,25 @@ export default function App() {
   };
 
   const giveLetter = () => {
+    if(game.harfPuan<=100){
+      return;
+    }
+
     let randomLetterIndex = Math.floor(Math.random() * game.harfler.length);
+    let harf = game.harfler[randomLetterIndex];
     console.log(randomLetterIndex);
+    while (harf.acik) {
+      let randomLetterIndex = Math.floor(Math.random() * game.harfler.length);
+      let harf = game.harfler[randomLetterIndex];
+    }
+    setgame({
+      ...game,
+      harfler:game.harfler.map((harf,index)=>{
+        if(index === randomLetterIndex){
+          harf.acik=true;
+        }
+      })
+    })
   };
 
   //console.log(game.sorular);
@@ -127,6 +146,11 @@ export default function App() {
             </div>
 
 
+          </div>
+          <div className="card-footer">
+            <div>Toplam Puan: {game.puan}</div>
+            <div>Harf Puan: {game.harfPuan}</div>
+            <div></div>
           </div>
           <div className="card-footer">
             <div className="input-group">
