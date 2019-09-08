@@ -1,119 +1,155 @@
-import React, { useState } from "react"; //state Kuallnıcağım için use state
+import React, { useState,useEffect } from "react"; //state Kuallnıcağım için use state
+import LetterView from "./LetterView";
 
 export default function App() {
-
+  const [totalPuan, setTotalPuan] = useState(0);
+  const [message,setMessage]=useState(null);
+  const [time,setTime]=useState(null);
   const [game, setgame] = useState({
-    mevcutSoru: null,
-    sorular: [{
-      soru: "Siyah ile aynı anlama gelen bir renk",
-      cevap: "KARA",
-      soruldu: false,
+    currentQuestion: null,
+    questions: [{
+      question: "Siyah ile aynı anlama gelen bir renk",
+      currentAnswer: "KARA",
+      asked: false,
     },
     {
-      soru: "Sık kullanılan bir isim",
-      cevap: "Ahmet",
-      soruldu: false,
+      question: "Sık kullanılan bir isim",
+      currentAnswer: "Ahmet",
+      asked: false,
     },
     {
-      soru: "Türkiyenin başkanti",
-      cevap: "ANKARA",
-      soruldu: false,
+      question: "Türkiyenin başkanti",
+      currentAnswer: "ANKARA",
+      asked: false,
     },
     {
-      soru: "Karadenizde bir ilimiz",
-      cevap: "TRABZON",
-      soruldu: false,
+      question: "Karadenizde bir ilimiz",
+      currentAnswer: "TRABZON",
+      asked: false,
     },
     {
-      soru: "Kayısısı ile ünlü ilimiz?",
-      cevap: "MALATYA",
-      soruldu: false,
+      question: "Kayısısı ile ünlü ilimiz?",
+      currentAnswer: "MALATYA",
+      asked: false,
     }],
-    harfler: [],
-    puan: 0,
-    harfPuan: 0,
-    sure: null,
-    kalanSure: 0,
-    tamamlandı: false,
-    yarismaciCevap: "",
-    mesaj: " Cevabınız yanlış",
-    mesajClass: "bg-info text-white",
-    mesajSure: null
+    letters: [],
+  
+    letterScore: 0,
+    gameCompleted: false,
+    competitorAnswer: ""
   })
 
-  const startGame = () => {
+  const receiveMessage = (message, kind) => {
+    if (kind === "error") {
+      setMessage({message, still: "bg-danger text-white" })
+    }
+    else if (kind === "success") {
 
-    setgame({ ...game, sorular: game.sorular.map(soru => { soru.soruldu = false; return soru; }) });
+      setMessage({message ,still: "bg-success text-white" })
+    }
+    else {
+      setMessage({message, still: "bg-info text-white" })
+ 
+    }
+
+  }
+useEffect(()=> {
+  if(time &&time.remainingTime>0){
+    const timeInterval=setInterval(()=>setTime({...time,remainingTime:time.remainingTime-1}),1000);
+    return() => {
+      clearInterval(timeInterval);
+    }
+  }
+
+})
+
+  const startGame = () => {
+    setTime({remainingTime:240})
+    setMessage(null);
+    setTotalPuan(null);
+    setgame({ ...game, questions: game.questions.map(question => { question.asked = false; return question; }),gameCompleted:false, });
     askQuestion();
   }
 
   const askQuestion = () => {
-    let sorular = game.sorular;
-    let mevcutSoru = sorular.find(soru => !soru.soruldu)
-    let harfler = [];
+    let questions = game.questions;
+    let currentQuestion = questions.find(question => !question.asked)
+    let letters = [];
 
-    if (!mevcutSoru) {
+    if (!currentQuestion) {
       gameOver();
       return;
     }
 
-    mevcutSoru.cevap.split("").forEach(h => {
-      harfler.push({
-        deger: h,
-        acik: false
+    currentQuestion.currentAnswer.split("").forEach(h => {
+      letters.push({
+        value: h,
+        opened: false
       });
-      console.log("h şudur=="+h);
+      //console.log("h şudur==" + h);
     }
     );
-    mevcutSoru.soruldu = true;
-    setgame({ ...game, mevcutSoru, harfler, sorular, harfPuan: harfler.length * 100 })
+    currentQuestion.asked = true;
+    setgame({ ...game, currentQuestion, letters, questions, letterScore: letters.length * 100, competitorAnswer: "",gameCompleted:false })
+  
   }
 
   const answer = () => {
+    let Toplam = totalPuan;
+    if (game.competitorAnswer.toLocaleUpperCase("tr") === game.currentQuestion.currentAnswer.toLocaleUpperCase("tr")) {
+
+      Toplam += game.letterScore;
+      receiveMessage("Tebrikler bildiniz", "success")
+    }
+    else {
+      Toplam -= game.letterScore;
+      receiveMessage(`Yanlış cevap. Doğru cevap:${game.currentQuestion.currentAnswer}`, "error")
+
+    }
+    //console.log(game.competitorAnswer);
+    setTotalPuan(Toplam)
     askQuestion();
   }
 
   const gameOver = () => {
-    setgame({ ...game, tamamlandı: true, mevcutSoru: null, harfler: [] });
+    setgame({ ...game, gameCompleted: true, currentQuestion: null, letters: [] });
 
   };
 
   const giveLetter = () => {
-    if(game.harfPuan<=100){
+    if (game.letterScore <= 100) {
       return;
     }
-
-    let randomLetterIndex = Math.floor(Math.random() * game.harfler.length);
-    let harf = game.harfler[randomLetterIndex];
-    console.log(randomLetterIndex);
-    while (harf.acik) {
-      let randomLetterIndex = Math.floor(Math.random() * game.harfler.length);
-      let harf = game.harfler[randomLetterIndex];
+    let rastgeleHarfIndex = Math.floor(Math.random() * game.letters.length);
+    let letter = game.letters[rastgeleHarfIndex];
+    while (letter.opened) {
+      rastgeleHarfIndex = Math.floor(Math.random() * game.letters.length);
+      letter = game.letters[rastgeleHarfIndex];
     }
     setgame({
       ...game,
-      harfler:game.harfler.map((harf,index)=>{
-        if(index === randomLetterIndex){
-          harf.acik=true;
+      letters: game.letters.map((letter, index) => {
+        if (index === rastgeleHarfIndex) {
+          letter.opened = true;
         }
-        return harf;
+        return letter;
       }),
-      harfPuan:game.harfPuan-100
-    })
+      letterScore: game.letterScore - 100
+    });
   };
 
-  const answerChanged= (e) => {
-    setgame({...game,yarismaciCevap: e.target.value})
+  const answerChanged = (e) => {
+    setgame({ ...game, competitorAnswer: e.target.value })
   };
 
-  //console.log(game.sorular);
+  //console.log(game.questions);
 
   return (
     <div className="container mt-4">
-      {!game.mevcutSoru && (
+      {!game.currentQuestion && (
         <div className="card">
           <div className="card-header">
-            <h4 className="mb-0">Kelime Oyununa Hoşgeldiniz</h4>
+            <h4 className="mb-0">Kelime gameuna Hoşgeldiniz</h4>
           </div>
           <div className="card-body">
             <p className="mb-0">
@@ -125,38 +161,35 @@ export default function App() {
           </div>
         </div>
       )}
-      {game.tamamlandı && (
+      {game.gameCompleted && (
         <div className="card">
           <div className="card-body">
 
-            Tebrikler oyunu {game.puan} ile tamamladınız.
-
+            Tebrikler gameu {totalPuan} ile tamamladınız.
+  
           </div>
         </div>
 
       )}
 
       {
-        game.mevcutSoru && (<div className="card mb-4">
+        game.currentQuestion && (<div className="card mb-4">
           <div className="card-header">
-            <h4 className="mb-0">{game.mevcutSoru.soru}</h4>
+            <h4 className="mb-0">{game.currentQuestion.question}</h4>
           </div>
           <div className="card-body">
-            <div className="harfler d-flex">
-              {game.harfler.map((harf, index) => (
-                <div className="harf shadow-sm mr-4 bg-dark text-white">
-                  {harf.acik && <span>{harf.deger}</span>}
-                  <span></span>
-                </div>)
-              )}
+          <div className="harfler d-flex">
+              {game.letters.map((letter, index) => (
+                <LetterView {...letter} key={"key-" + index} />
+              ))}
             </div>
 
 
           </div>
           <div className="card-footer">
-            <div className="mr-4">Toplam Puan: {game.puan}</div>
-            <div className="mr-4">Harf Puan: {game.harfPuan}</div>
-            <div className="mr-4">Kalan süre: {game.kalanSure} saniye.</div>
+            <div className="mr-4">Toplam Puan: {totalPuan}</div>
+            <div className="mr-4">Harf Puan: {game.letterScore}</div>
+            <div className="mr-4">Kalan süre: {time.remainingTime} saniye.</div>
           </div>
           <div className="card-footer">
             <div className="input-group">
@@ -166,7 +199,7 @@ export default function App() {
                 placeholder="Cevabınız?"
                 aria-label="Recipient's username"
                 aria-describedby="basic-addon2"
-                value={game.yarismaciCevap}
+                value={game.competitorAnswer}
                 onChange={answerChanged}
               />
               <div className="input-group-append">
@@ -179,7 +212,9 @@ export default function App() {
               </div>
             </div>
           </div>
-          <div className={"card-footer " + game.mesajClass}>{game.mesaj}</div>
+          {
+            message && (<div className={"card-footer " + message.still}>{message.message}</div>)
+          }
         </div>)
       }
 
